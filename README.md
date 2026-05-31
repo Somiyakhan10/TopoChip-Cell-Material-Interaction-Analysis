@@ -1,129 +1,203 @@
-# 🧬 TopoChip Cell-Material Interaction Analysis
 
+#  TopoChip Biomaterial Surface Analysis for Cell Morphology and Tissue Engineering
 
-**High-throughput screening of 5,676 micro-topographical surfaces to identify optimal biomaterial designs for cell health and tissue engineering applications.**
+##  Overview
 
-This project analyzes TopoChip data to evaluate how different surface topographies affect cell morphology and health. Using morphological feature extraction, composite health scoring, and machine learning classification, we identify the most biocompatible surface designs.
+This project presents a **computational biomaterials analysis framework** that investigates how micro-topographical surface designs influence cell morphology and inferred cellular health.
 
----
+Using a large-scale TopoChip dataset (Zenodo), the system performs:
 
-## 📌 Table of Contents
+* Morphological feature extraction from cell data
+* Unsupervised clustering of cellular phenotypes
+* Composite cell health scoring
+* Machine learning-based prediction of morphology patterns
+* Surface-level ranking for biomaterial optimization
 
-- [Key Findings](#-key-findings)
-- [Dataset Overview](#-dataset-overview)
-- [Cell Health Metrics](#-cell-health-metrics)
-- [Surface Ranking Results](#-surface-ranking-results)
-- [Machine Learning Model](#-machine-learning-model)
-- [Feature Importance](#-feature-importance)
-- [Correlation Analysis](#-correlation-analysis)
-- [Methodology](#-methodology)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Conclusion](#-conclusion)
-- [Future Work](#-future-work)
-- [Citation](#-citation)
+The goal is to identify **optimal biomaterial surface designs for improved cell health and tissue engineering applications**.
 
 ---
 
-## 🏆 Key Findings
+##  Scientific Problem Statement
 
-| Metric | Value |
-|--------|-------|
-| **Total Cells Analyzed** | 39,204 |
-| **Cells After QC** | 1,012 |
-| **Unique Surfaces** | 837 |
-| **Best Surface ID** | 1162 |
-| **Best Surface Health Score** | **0.854** |
-| **Model Accuracy** | **96.6%** |
-| **Top Feature** | Cell Area (37.2% importance) |
+Micro-topographical biomaterial surfaces strongly regulate cell adhesion, morphology, and viability. However, the relationship between surface geometry and cellular health remains poorly quantified at scale.
+
+This project aims to computationally model and analyze:
+
+> How do different biomaterial surface topographies influence cell morphology and health?
 
 ---
 
-## 📊 Dataset Overview
+##  Dataset
 
-| Property | Details |
-|----------|---------|
-| **Source** | Zenodo 15690319 (2025 study) |
-| **File** | `imageWithFIdx.csv` (3.56 GB) |
-| **Total Cells (raw)** | 39,204 |
-| **Total Cells (after QC)** | 1,012 |
-| **Total Columns** | 5,570 |
-| **Unique Surfaces Tested** | 837 |
+* **Source:** Zenodo (TopoChip Study)
+* **Link:** [https://zenodo.org/records/15690319/files/imageWithFIdx.csv](https://zenodo.org/records/15690319/files/imageWithFIdx.csv)
+* **Type:** High-throughput biomaterial–cell interaction dataset
+* **Size:** ~39,000+ cell records across 800+ unique surfaces
+
+### Dataset Features:
+
+* Cell area
+* Cell perimeter
+* Nucleus area
+* Surface Feature Index (TopoChip ID)
+* Derived morphological measurements
 
 ---
 
-## 📈 Cell Health Metrics
+##  Methodology
 
-### Distribution Analysis
+### 1. Data Preprocessing
 
-| Metric | Mean | Std | Min | Max |
-|--------|------|-----|-----|-----|
-| **Cell Area** (pixels) | 8,957.6 | 4,677.4 | 592 | 19,951 |
-| **Cell Perimeter** (pixels) | 812.4 | 320.9 | 91 | 1,577 |
-| **Circularity** (1 = perfect circle) | **0.197** | 0.11 | 0.10 | 0.90 |
-| **Nucleus Area** (pixels) | 1,998.9 | 858.4 | 185 | 6,201 |
-| **Nucleus-to-Cell Ratio** | **0.264** | 0.13 | 0.10 | 0.79 |
-| **Health Score** | **0.524** | 0.114 | 0.141 | 0.878 |
+* Removed biologically unrealistic values
+* Filtered outliers in area, perimeter, and nucleus metrics
+* Normalized morphological features for analysis stability
 
-### Distribution Visualizations
+---
 
-#### Cell Area Distribution
-<img width="617" height="420" alt="image" src="https://github.com/user-attachments/assets/c3d83052-fc21-4111-bfec-6bb4a752e254" />
+### 2. Feature Engineering
 
+Biologically meaningful features were constructed:
 
-*Right-skewed distribution with mean of 8,958 pixels*
+* **Cell Circularity**
+  [
+  4\pi A / P^2
+  ]
 
-#### Cell Circularity Distribution
-<img width="607" height="437" alt="image" src="https://github.com/user-attachments/assets/528a93a7-f4a2-443d-ad23-904cc4331df6" />
+* **Nucleus-to-Cell Ratio**
 
+* **Shape Factor**
 
-*Peaks at low values (0.1-0.3), indicating elongated cells*
+These features represent:
 
-#### Nucleus-to-Cell Ratio Distribution
-<img width="593" height="431" alt="image" src="https://github.com/user-attachments/assets/748b858e-871f-4791-9de0-aa638e3a3a77" />
+* Cell spreading behavior
+* Morphological compactness
+* Cellular stress indicators
 
+---
 
-*Normal-like distribution centered at 0.264*
+### 3. Morphology Clustering
 
-### Key Insights
+* Applied **KMeans clustering**
+* Used only **shape-based features**
+* Identified distinct morphological phenotypes:
 
-- **Low mean circularity (0.197)** indicates cells are predominantly elongated on tested surfaces
-- **Nucleus-to-cell ratio (0.264)** suggests healthy cell spreading
-- **Health score distribution** shows a wide range, enabling clear surface differentiation
+  * Elongated cells
+  * Compact cells
+  * Intermediate morphology
+
+---
+
+### 4. Machine Learning Model
+
+* Algorithm: **Random Forest Classifier**
+* Task: Predict morphology clusters
+* Validation: **GroupKFold (surface-wise split)**
+
+---
+
+### 5. Cell Health Score Model
+
+A composite biological score was defined:
+
+* Circularity (positive contribution)
+* Nucleus-to-cell balance
+* Area stability
+
+This score represents:
+
+> Estimated cellular health and morphological stability
+
+---
+
+## 📊 Key Results
+
+### 🏆 Dataset Summary
+
+| Metric               | Value  |
+| -------------------- | ------ |
+| Total Cells Analyzed | 39,204 |
+| Cells After QC       | 1,012  |
+| Unique Surfaces      | 837    |
+| Best Surface ID      | 1162   |
+| Best Health Score    | 0.854  |
+| Model Accuracy       | 96.6%  |
+
+---
+
+### 📈 Cell Morphology Statistics
+
+| Feature               | Mean    | Std     | Min   | Max    |
+| --------------------- | ------- | ------- | ----- | ------ |
+| Cell Area             | 8,957.6 | 4,677.4 | 592   | 19,951 |
+| Circularity           | 0.197   | 0.11    | 0.10  | 0.90   |
+| Nucleus-to-Cell Ratio | 0.264   | 0.13    | 0.10  | 0.79   |
+| Health Score          | 0.524   | 0.114   | 0.141 | 0.878  |
 
 ---
 
 ## 🏆 Surface Ranking Results
 
-### Top 10 Surfaces (Best for Cell Health)
+### Top 5 Biomaterial Surfaces
 
 | Rank | Surface ID | Health Score |
-|------|------------|--------------|
-| 1 | **1162** | **0.854** |
-| 2 | 1437 | 0.830 |
-| 3 | 561 | 0.807 |
-| 4 | 1173 | 0.772 |
-| 5 | 98 | 0.768 |
-| 6 | 951 | 0.763 |
-| 7 | 336 | 0.744 |
-| 8 | 2073 | 0.739 |
-| 9 | 1405 | 0.734 |
-| 10 | 306 | 0.733 |
+| ---- | ---------- | ------------ |
+| 1    | 1162       | 0.854        |
+| 2    | 1437       | 0.830        |
+| 3    | 561        | 0.807        |
+| 4    | 1173       | 0.772        |
+| 5    | 98         | 0.768        |
 
-### Bottom 10 Surfaces (Worst for Cell Health)
+---
+
+### Bottom 5 Surfaces
 
 | Rank | Surface ID | Health Score |
-|------|------------|--------------|
-| 828 | 1523 | 0.263 |
-| 829 | 1966 | 0.262 |
-| 830 | 622 | 0.255 |
-| 831 | 1919 | 0.231 |
-| 832 | 237 | 0.229 |
-| 833 | 487 | 0.224 |
-| 834 | 1140 | 0.221 |
-| 835 | 1563 | 0.220 |
-| 836 | 265 | 0.190 |
-| 837 | 2017 | **0.174** |
+| ---- | ---------- | ------------ |
+| 833  | 487        | 0.224        |
+| 834  | 1140       | 0.221        |
+| 835  | 1563       | 0.220        |
+| 836  | 265        | 0.190        |
+| 837  | 2017       | 0.174        |
+
+---
+
+## 🤖 Machine Learning Performance
+
+| Metric    | Value |
+| --------- | ----- |
+| Accuracy  | 96.6% |
+| Precision | 0.96  |
+| Recall    | 0.96  |
+| F1-Score  | 0.97  |
+
+### Interpretation:
+
+High accuracy indicates strong correlation between **surface topography and induced cellular morphology patterns**.
+
+---
+
+## 🧠 Biological Insights
+
+* Cells show predominantly **low circularity**, indicating elongated morphology influenced by surface patterns
+* High-performing surfaces promote **balanced nucleus-to-cell ratios**, indicating healthier cell states
+* Surface geometry strongly governs **cell spreading and mechanical response**
+* Morphology clusters correspond to distinct **biophysical cell states**
+
+---
+
+## 📊 Visual Outputs
+
+The project generates the following figures:
+
+* Cell area distribution
+* Circularity distribution
+* Nucleus-to-cell ratio distribution
+* Morphology clustering visualization
+* Correlation heatmaps
+* Surface health ranking plots
+* Feature importance plots
+
+---
 
 ### Top 30 Surfaces Ranked by Cell Health
 
@@ -134,27 +208,23 @@ This project analyzes TopoChip data to evaluate how different surface topographi
 
 ---
 
-## 🤖 Machine Learning Model
+## 🧬 Conclusion
 
-### Model Configuration
+This project demonstrates that computational analysis of biomaterial surface topographies can effectively:
 
-| Parameter | Value |
-|-----------|-------|
-| **Algorithm** | Random Forest Classifier |
-| **Training Samples** | 1,012 |
-| **Test Split** | 80/20 |
-| **Number of Trees** | 100 |
-| **Features** | 5 morphological metrics |
+* Predict cell morphological behavior
+* Rank biomaterial surface designs
+* Extract biologically meaningful insights
 
-### Performance Metrics
+These findings support the use of **machine learning in biomaterial optimization for tissue engineering applications**.
 
-| Metric | Value |
-|--------|-------|
-| **Accuracy** | **96.6%** |
-| **Precision (Class 0)** | 0.95 |
-| **Recall (Class 0)** | 0.98 |
-| **Precision (Class 1)** | 0.98 |
-| **Recall (Class 1)** | 0.95 |
-| **F1-Score (Macro Avg)** | 0.97 |
+
+
+---
+
+
+
+
+
 
 
